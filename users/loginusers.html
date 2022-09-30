@@ -1,0 +1,99 @@
+<html>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <style>
+  .w3-teal,.w3-hover-teal:hover{color:#fff!important;background-color:#e91717!important}
+    header,button{
+        background-color: #ff2626;
+    }
+    .b {
+      display: inline-block;
+    }
+    input {
+      padding: 8px;
+      border: none;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #outer {
+      width: 100%;
+      text-align: center;
+    }
+
+    #inner {
+      display: inline-block;
+    }
+  </style>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="AlterVista - Editor HTML" />
+    <title>LogIn</title>
+  </head>
+  <script>
+    function login() {
+      u = document.getElementById("user");
+      p = document.getElementById("passwd");
+
+      if (!u.checkValidity()) {
+        alert("Inserisci l'username");
+        return;
+      }
+      if (!p.checkValidity()) {
+        alert("Inserisci la password");
+        return;
+      }
+
+      user = document.getElementById("user").value;
+      passwd = document.getElementById("passwd").value;
+
+      const dbParam = JSON.stringify({
+        fun: "login",
+        username: user,
+        password: passwd,
+      });
+
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        const myObj = JSON.parse(this.responseText);
+        //const myObj = this.responseText;
+        //let text = "";
+        //for (let x in myObj) {
+        //  text += myObj[x].Cognome + "<br>";
+        //}
+        //document.getElementById("demo").innerHTML = document.cookie;
+        if (myObj.token == "errore") {
+          alert("Errore, credenziali errate!");
+          return;
+        }
+        document.cookie = myObj.token;
+        window.location.href =
+          "http://unipgbookss.altervista.org/SAED/users/users.html";
+      };
+      xmlhttp.open("POST", "admin.php");
+      xmlhttp.setRequestHeader(
+        "Content-type",
+        "application/x-www-form-urlencoded"
+      );
+      xmlhttp.send("x=" + dbParam);
+    }
+  </script>
+  <body>
+    <header class="w3-container w3-teal">
+      <h1>Login</h1>
+    </header>
+
+    <div class="w3-container w3-half w3-margin-top" id="outer">
+      <div class="w3-container w3-card-4" id="inner">
+        <div>
+          <label  class="b" style="font-weight: bold">Username:</label>
+          <input  class="b" type="text" id="user" name="user" required/>
+        </div>
+        <div>
+        	<label  class="b" style="font-weight: bold">Password:</label>
+        	<input  class="b" type="password" id="passwd" name="passwd" required/>
+        </div>
+        <button onClick="login()" class="w3-btn w3-section w3-teal w3-ripple">LogIn</button>
+      </div>
+    </div>
+  </body>
+</html>
+

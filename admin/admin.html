@@ -1,0 +1,462 @@
+<html>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <style>
+    .b {
+      display: inline-block;
+    }
+    input {
+      padding: 8px;
+      border: none;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #outer {
+      width: 100%;
+      text-align: center;
+    }
+
+    #inner {
+      display: inline-block;
+    }
+  </style>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="AlterVista - Editor HTML" />
+    <title>Mensa Pascoli</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+  <script>
+    function getCookie(cname) {
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(";");
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == " ") {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    $(document).ready(function () {
+      var now = new Date();
+      var day = ("0" + now.getDate()).slice(-2);
+      var month = ("0" + (now.getMonth() + 1)).slice(-2);
+      var today = now.getFullYear() + "-" + month + "-" + day;
+      $("#data").val(today);
+      $("#Pdata").val(today);
+      $("#Cdata").val(today);
+      getMenu();
+      getUsername();
+      $("#data").change(function () {
+        getMenu();
+      });
+    });
+    function mirror(myObj) {
+      Object.entries(myObj).forEach(([key, value]) => {
+        alert(key, value);
+      });
+    }
+    function getUsername() {
+      if (getCookie("token")) {
+        token = getCookie("token");
+      } else {
+        window.location.href =
+          "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+      }
+      const dbParam = JSON.stringify({
+        fun: "getUsername",
+        token: token,
+      });
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        const myObj = JSON.parse(this.responseText);
+        if (myObj.token == "errore") {
+          alert("Errore, credenziali errate!");
+          window.location.href =
+            "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+          return;
+        }
+        document.getElementById("usrLabel").innerHTML = myObj.username;
+      };
+      xmlhttp.open("POST", "admin.php");
+      xmlhttp.setRequestHeader(
+        "Content-type",
+        "application/x-www-form-urlencoded"
+      );
+      xmlhttp.send("x=" + dbParam);
+    }
+    function logOut() {
+      document.cookie =
+        "token" + "=; expires=Thu, 01-Jan-70 00:00:01 GMT;path=/";
+      window.location.href =
+        "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+    }
+    function getMenu() {
+      data = document.getElementById("data");
+      document.getElementById("Pdata").value = data.value;
+      document.getElementById("Cdata").value = data.value;
+      const dbParam = JSON.stringify({
+        fun: "getMenu",
+        data: data.value,
+      });
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        const myObj = JSON.parse(this.responseText);
+
+        document.getElementById("Pprimi").value = "";
+        document.getElementById("Psecondi").value = "";
+        document.getElementById("Pcontorni").value = "";
+        document.getElementById("Pdessert").value = "";
+        document.getElementById("Cprimi").value = "";
+        document.getElementById("Csecondi").value = "";
+        document.getElementById("Ccontorni").value = "";
+        document.getElementById("Cdessert").value = "";
+        for (let x in myObj) {
+          if (myObj[x].tipo == 0) {
+            prefix = "P";
+          } else {
+            prefix = "C";
+          }
+          document.getElementById(prefix + "primi").value = myObj[x].primi;
+          document.getElementById(prefix + "secondi").value = myObj[x].secondi;
+          document.getElementById(prefix + "contorni").value =
+            myObj[x].contorni;
+          document.getElementById(prefix + "dessert").value = myObj[x].dessert;
+        }
+      };
+      //document.getElementById("demo").innerHTML = document.cookie;
+      //window.location.href =
+      //  "http://unipgbookss.altervista.org/SAED/admin/admin.html";
+      xmlhttp.open("POST", "admin.php");
+      xmlhttp.setRequestHeader(
+        "Content-type",
+        "application/x-www-form-urlencoded"
+      );
+      xmlhttp.send("x=" + dbParam);
+    }
+    function updateMenu() {
+      var ele = document.getElementsByName("tipo");
+
+      for (i = 0; i < ele.length; i++) {
+        if (ele[i].checked) tipo = ele[i].value;
+      }
+      data = document.getElementById("data");
+      primi = document.getElementById("primi");
+      secondi = document.getElementById("secondi");
+      contorni = document.getElementById("contorni");
+      dessert = document.getElementById("dessert");
+      if (getCookie("token")) {
+        token = getCookie("token");
+      } else {
+        token = "errore";
+        window.location.href =
+          "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+      }
+      if (
+        !data.checkValidity() ||
+        !primi.checkValidity() ||
+        !secondi.checkValidity() ||
+        !contorni.checkValidity() ||
+        !dessert.checkValidity()
+      ) {
+        alert("Inserisci tutti i campi!");
+        return;
+      }
+      const dbParam = JSON.stringify({
+        fun: "updateMenu",
+        token: token,
+        data: data.value,
+        tipo: tipo,
+        primi: primi.value,
+        secondi: secondi.value,
+        contorni: contorni.value,
+        dessert: dessert.value,
+      });
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        const myObj = JSON.parse(this.responseText);
+        //const myObj = this.responseText;
+        //let text = "";
+        //for (let x in myObj) {
+        //  text += myObj[x].Cognome + "<br>";
+        //}
+        //document.getElementById("demo").innerHTML = document.cookie;
+        if (myObj.token == "errore") {
+          alert(myObj.status);
+          if (myObj.status == "Non hai i permessi per eseguire questa azione") {
+            window.location.href =
+              "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+          }
+          return;
+        }
+        //window.location.href =
+        //  "http://unipgbookss.altervista.org/SAED/admin/admin.html";
+      };
+      xmlhttp.open("POST", "admin.php");
+      xmlhttp.setRequestHeader(
+        "Content-type",
+        "application/x-www-form-urlencoded"
+      );
+      xmlhttp.send("x=" + dbParam);
+    }
+    function deleteMenu(tipo) {
+      if (tipo == 0) {
+        data = document.getElementById("Pdata");
+      }
+      if (tipo == 1) {
+        data = document.getElementById("Cdata");
+      }
+      if (getCookie("token")) {
+        token = getCookie("token");
+      } else {
+        window.location.href =
+          "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+      }
+      const dbParam = JSON.stringify({
+        fun: "deleteMenu",
+        token: token,
+        data: data.value,
+        tipo: tipo,
+      });
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        const myObj = JSON.parse(this.responseText);
+        if (myObj.token == "errore") {
+          alert(myObj.status);
+          if (myObj.status == "Non hai i permessi per eseguire questa azione") {
+            window.location.href =
+              "http://unipgbookss.altervista.org/SAED/admin/logadmin.html";
+          }
+          return;
+        }
+      };
+      xmlhttp.open("POST", "admin.php");
+      xmlhttp.setRequestHeader(
+        "Content-type",
+        "application/x-www-form-urlencoded"
+      );
+      xmlhttp.send("x=" + dbParam);
+    }
+  </script>
+  <body>
+    <header class="w3-container w3-teal">
+      <h1>Mensa Centrale</h1>
+      <p>Alessandro Pascoli, 23, 06123 Perugia PG</p>
+      Area cuoco: <b id="usrLabel"> </b>
+      <button
+        onClick="logOut();"
+        class="w3-btn w3-section w3-red w3-ripple"
+        style="float: right"
+      >
+        Log out
+      </button>
+    </header>
+
+    <div class="w3-container w3-margin-top" id="outer">
+      <div class="w3-container w3-card-4" id="inner">
+        <h1>Aggiorna il Menu del giorno:</h1>
+        <div>
+          <label class="b" style="font-weight: bold">Data:</label>
+          <input type="date" id="data" style="width: 90%" required />
+        </div>
+
+        <fieldset class="b" style="text-align: left">
+          <legend>Tipo:</legend>
+
+          <div>
+            <input type="radio" id="pranzo" name="tipo" value="0" checked />
+            <label for="pranzo">Pranzo</label>
+          </div>
+
+          <div>
+            <input type="radio" id="cena" name="tipo" value="1" />
+            <label for="cena">Cena</label>
+          </div>
+        </fieldset>
+
+        <div>
+          <label class="b" style="font-weight: bold">Primi:</label>
+          <textarea
+            id="primi"
+            class="b"
+            rows="4"
+            cols="40"
+            style="width: 90%"
+            required
+          >
+Inserisci lista di primi...</textarea
+          >
+          <br />
+        </div>
+
+        <div>
+          <label class="b" style="font-weight: bold">Secondi:</label>
+          <textarea
+            id="secondi"
+            class="b"
+            rows="4"
+            cols="40"
+            style="width: 90%"
+            required
+          >
+Inserisci lista di secondi...</textarea
+          >
+          <br />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Contorni:</label>
+          <textarea
+            id="contorni"
+            class="b"
+            rows="4"
+            cols="40"
+            style="width: 90%"
+            required
+          >
+Inserisci lista di contorni...</textarea
+          >
+          <br />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Dessert:</label>
+          <textarea
+            id="dessert"
+            class="b"
+            rows="4"
+            cols="40"
+            style="width: 90%"
+            required
+          >
+Inserisci lista di dessert...</textarea
+          >
+          <br />
+        </div>
+
+        <button
+          onClick="updateMenu();setTimeout(getMenu, 500);"
+          class="w3-btn w3-section w3-teal w3-ripple"
+        >
+          Aggiorna
+        </button>
+      </div>
+
+      <div class="w3-container w3-card-4" id="inner">
+        <h1>Pranzo:</h1>
+        <div>
+          <label class="b" style="font-weight: bold">Data:</label>
+          <input type="date" id="Pdata" style="width: 90%" readonly />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Primi:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Pprimi"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="b" style="font-weight: bold">Secondi:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Psecondi"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="b" style="font-weight: bold">Contorni:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Pcontorni"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Dessert:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Pdessert"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+        <button
+          onClick="deleteMenu(0);setTimeout(getMenu, 500);"
+          class="w3-btn w3-section w3-teal w3-ripple"
+        >
+          Elimina
+        </button>
+      </div>
+
+      <div class="w3-container w3-card-4" id="inner">
+        <h1>Cena:</h1>
+        <div>
+          <label class="b" style="font-weight: bold">Data:</label>
+          <input type="date" id="Cdata" style="width: 90%" readonly />
+        </div>
+
+        <div>
+          <label class="b" style="font-weight: bold">Primi:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Cprimi"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="b" style="font-weight: bold">Secondi:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Csecondi"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="b" style="font-weight: bold">Contorni:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Ccontorni"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Dessert:</label>
+          <textarea
+            rows="4"
+            cols="40"
+            id="Cdessert"
+            style="width: 90%"
+            readonly
+          ></textarea>
+        </div>
+        <button
+          onClick="deleteMenu(1);setTimeout(getMenu, 500);"
+          class="w3-btn w3-section w3-teal w3-ripple"
+        >
+          Elimina
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
