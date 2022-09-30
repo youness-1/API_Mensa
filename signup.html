@@ -1,0 +1,139 @@
+<html>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <style>
+    .b {
+      display: inline-block;
+    }
+    input {
+      padding: 8px;
+      border: none;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #outer {
+      width: 100%;
+      text-align: center;
+    }
+
+    #inner {
+      display: inline-block;
+    }
+  </style>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="AlterVista - Editor HTML" />
+    <title>LogIn</title>
+  </head>
+  <script>
+    function setCookie(cname, cvalue, exMinutes) {
+      const d = new Date();
+      d.setTime(d.getTime() + exMinutes * 60 * 1000);
+      let expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    function register() {
+      nome = document.getElementById("nome");
+      cognome = document.getElementById("cognome");
+      CF = document.getElementById("CF");
+      email = document.getElementById("email");
+      username = document.getElementById("username");
+      password = document.getElementById("password");
+
+      if (
+        !nome.checkValidity() ||
+        !cognome.checkValidity() ||
+        !CF.checkValidity() ||
+        !email.checkValidity() ||
+        !username.checkValidity() ||
+        !password.checkValidity()
+      ) {
+        alert("Inserisci tutti i campi!");
+        return;
+      }
+
+      const dbParam = JSON.stringify({
+        fun: "signup",
+        nome: nome.value,
+        cognome: cognome.value,
+        CF: CF.value,
+        email: email.value,
+        username: username.value,
+        password: password.value,
+      });
+      document.cookie =
+        "token" + "=; expires=Thu, 01-Jan-70 00:00:01 GMT;path=/";
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        const myObj = JSON.parse(this.responseText);
+        if (myObj.token == "errore") {
+          alert(myObj.status);
+          return;
+        } else {
+          alert(myObj.status);
+        }
+        window.location.href =
+          "http://unipgbookss.altervista.org/SAED/loguser.html";
+      };
+      xmlhttp.open("POST", "user.php");
+      xmlhttp.setRequestHeader(
+        "Content-type",
+        "application/x-www-form-urlencoded"
+      );
+      xmlhttp.send("x=" + dbParam);
+    }
+  </script>
+  <body>
+    <header class="w3-container w3-teal">
+      <h1>Registrazione utente</h1>
+      <button
+        onClick="window.location.href = 'http://unipgbookss.altervista.org/SAED/loguser.html';"
+        class="w3-btn w3-section w3-green w3-ripple"
+        style="float: right"
+      >
+        Log in
+      </button>
+      <button
+        onClick="window.location.href = 'http://unipgbookss.altervista.org/SAED/index.html';"
+        class="w3-btn w3-section w3-lime w3-ripple"
+        style="float: right"
+      >
+        Homepage
+      </button>
+    </header>
+
+    <div class="w3-container w3-half w3-margin-top" id="outer">
+      <div class="w3-container w3-card-4" id="inner">
+        <div>
+          <label class="b" style="font-weight: bold">Nome:</label>
+          <input class="b" type="text" id="nome" required />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Cognome:</label>
+          <input class="b" type="text" id="cognome" required />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Codice Fiscale:</label>
+          <input class="b" type="text" id="CF" required />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Email:</label>
+          <input class="b" type="email" id="email" required />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Username:</label>
+          <input class="b" type="text" id="username" required />
+        </div>
+        <div>
+          <label class="b" style="font-weight: bold">Password:</label>
+          <input class="b" type="password" id="password" required />
+        </div>
+        <button
+          onClick="register();"
+          class="w3-btn w3-section w3-teal w3-ripple"
+        >
+          Sign Up
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
